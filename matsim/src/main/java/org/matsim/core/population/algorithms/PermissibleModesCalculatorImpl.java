@@ -36,6 +36,8 @@ public final class PermissibleModesCalculatorImpl implements PermissibleModesCal
 	private final List<String> availableModes;
 	private final List<String> availableModesWithoutCar;
 	private final boolean considerCarAvailability;
+	private final List<String> availableModesWithoutBike;
+	private List<String> availableModesWithoutBikeandCar;
 
 	@Inject
 	public PermissibleModesCalculatorImpl(Config config) {
@@ -49,7 +51,25 @@ public final class PermissibleModesCalculatorImpl implements PermissibleModesCal
 		} else {
 			this.availableModesWithoutCar = this.availableModes;
 		}
-
+		if (this.availableModes.contains(TransportMode.bike)) {
+			final List<String> l = new ArrayList<String>(this.availableModes);
+			while (l.remove(TransportMode.bike)) {
+			}
+			this.availableModesWithoutBike = Collections.unmodifiableList(l);
+		} else {
+			this.availableModesWithoutBike = this.availableModes;
+		}
+		if (this.availableModes.contains(TransportMode.bike) || this.availableModes.contains(TransportMode.car)) {
+			final List<String> l = new ArrayList<String>(this.availableModes);
+			while (l.remove(TransportMode.car)) {
+			}
+			while (l.remove(TransportMode.bike)) {
+			}
+			this.availableModesWithoutBikeandCar = Collections.unmodifiableList(l);
+		} else {
+			this.availableModesWithoutBikeandCar = this.availableModes;
+		}
+		
 		this.considerCarAvailability = config.subtourModeChoice().considerCarAvailability();
 	}
 
@@ -68,7 +88,15 @@ public final class PermissibleModesCalculatorImpl implements PermissibleModesCal
 		final boolean carAvail =
 			!"no".equals( PersonUtils.getLicense(person) ) &&
 			!"never".equals( PersonUtils.getCarAvail(person) );
+		
+		final boolean bikeAvail = !"never".equals( PersonUtils.getBikeAvail(person) );
 
-		return carAvail ? availableModes : availableModesWithoutCar;
+		if (carAvail && bikeAvail)
+			return availableModes;
+		else if (carAvail && !bikeAvail)
+			return availableModesWithoutBike;
+		else if (!carAvail && bikeAvail)
+			return availableModesWithoutCar;
+		return availableModesWithoutBikeandCar;
 	}
 }

@@ -73,10 +73,14 @@ public final class ChooseRandomLegMode implements PlanAlgorithm {
 	private void changeToRandomLegMode(final List<PlanElement> tour, final Plan plan) {
 		if (tour.size() > 1) {
 			boolean forbidCar = false;
+			boolean forbidBike = false;
 			if (!this.ignoreCarAvailability) {
 				String carAvail = PersonUtils.getCarAvail(plan.getPerson());
 				if ("never".equals(carAvail)) {
 					forbidCar = true;
+				}
+				if ("never".equals(PersonUtils.getBikeAvail(plan.getPerson()))) {
+					forbidBike = true;
 				}
 			}
 
@@ -93,7 +97,10 @@ public final class ChooseRandomLegMode implements PlanAlgorithm {
 				newMode = this.possibleModes[newModeIdx];
 				if (!(forbidCar && TransportMode.car.equals(newMode))) {
 					break;
-				} else {
+				} else if (!(forbidBike && TransportMode.bike.equals(newMode))) {
+					break;
+				}
+				else {
 					if (this.possibleModes.length == 2) {
 						newMode = currentMode; // there is no other mode available
 						break;

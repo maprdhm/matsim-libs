@@ -37,6 +37,7 @@ public final class PersonUtils {
     private final static String SEX_ATTRIBUTE = "sex";
     private final static String HAS_LICENSE = "hasLicense";
     private static final String CAR_AVAIL = "carAvail";
+    private static final String BIKE_AVAIL = "bikeAvail";
     private static final String EMPLOYED = "employed";
     private static final String AGE = "age";
     private static final String TRAVEL_CARDS = "travelcards";
@@ -123,6 +124,13 @@ public final class PersonUtils {
      */
     public static String getCarAvail(Person person) {
         return (String) person.getAttributes().getAttribute(CAR_AVAIL);
+    }
+    
+    /**
+     * convenience method for often used demographic attribute
+     */
+    public static String getBikeAvail(Person person) {
+        return (String) person.getAttributes().getAttribute(BIKE_AVAIL);
     }
 
     /**
