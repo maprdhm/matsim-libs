@@ -72,10 +72,15 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 	@Override
 	public void run(final Plan plan) {
 		boolean forbidCar = false;
+		boolean forbidBike = false;
 		if (!this.ignoreCarAvailability) {
 			String carAvail = PersonUtils.getCarAvail(plan.getPerson());
 			if ("never".equals(carAvail)) {
 				forbidCar = true;
+			}
+			String bikeAvail = PersonUtils.getBikeAvail(plan.getPerson());
+			if ("never".equals(bikeAvail)) {
+				forbidBike = true;
 			}
 		}
 
@@ -99,11 +104,11 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 			return;
 		}
 		int rndIdx = this.rng.nextInt(cnt);
-		setRandomLegMode(legs.get(rndIdx), forbidCar);
+		setRandomLegMode(legs.get(rndIdx), forbidCar, forbidBike);
 	}
 
-	private void setRandomLegMode(final Leg leg, final boolean forbidCar) {
-		String newMode = chooseModeOtherThan(leg.getMode(), forbidCar);
+	private void setRandomLegMode(final Leg leg, final boolean forbidCar, final boolean forbidBike) {
+		String newMode = chooseModeOtherThan(leg.getMode(), forbidCar, forbidBike);
 		leg.setMode(newMode);
 		TripStructureUtils.setRoutingMode(leg, newMode);
 		Route route = leg.getRoute() ;
@@ -112,7 +117,7 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 		}
 	}
 
-	private String chooseModeOtherThan(final String currentMode, final boolean forbidCar) {
+	private String chooseModeOtherThan(final String currentMode, final boolean forbidCar, final boolean forbidBike) {
 		String newMode;
 		while (true) {
 			int newModeIdx = this.rng.nextInt(this.possibleModes.length - 1);
@@ -128,7 +133,10 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 			newMode = this.possibleModes[newModeIdx];
 			if (!(forbidCar && TransportMode.car.equals(newMode))) {
 				break;
-			} else {
+			} else if (!(forbidBike && TransportMode.bike.equals(newMode))) {
+				break; 
+			}
+			else {
 				if (this.possibleModes.length == 2) {
 					newMode = currentMode; // there is no other mode available
 					break;
