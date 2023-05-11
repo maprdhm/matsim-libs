@@ -91,7 +91,7 @@ class CarrierPlanXmlParserV2_1 extends MatsimXmlParser {
 
 	private final AttributesXmlReaderDelegate attributesReader = new AttributesXmlReaderDelegate();
 	private org.matsim.utils.objectattributes.attributable.Attributes currAttributes =
-			new org.matsim.utils.objectattributes.attributable.Attributes();
+			new org.matsim.utils.objectattributes.attributable.AttributesImpl();
 
 	/**
 	 * Constructs a reader with an empty carriers-container for the carriers to be constructed.
@@ -123,7 +123,6 @@ class CarrierPlanXmlParserV2_1 extends MatsimXmlParser {
 				currentCarrier = CarrierUtils.createCarrier(Id.create(id, Carrier.class));
 				break;
 			}
-
 			//services
 			case SERVICES:
 				serviceMap = new HashMap<>();
@@ -204,20 +203,14 @@ class CarrierPlanXmlParserV2_1 extends MatsimXmlParser {
 				break;
 
 			//vehicle-type
-			case "vehicleType":
+			case "vehicleType", "engineInformation", "costInformation":
 				throw new RuntimeException(VEHICLE_TYPES_MSG);
-			case "engineInformation":
-				throw new RuntimeException(VEHICLE_TYPES_MSG);
-			case "costInformation":
-				throw new RuntimeException(VEHICLE_TYPES_MSG);
-
 
 				//vehicle
 			case VEHICLES:
 				vehicles = new HashMap<>();
 				break;
 			case VEHICLE:
-
 				String vId = atts.getValue(ID);
 				if (vId == null) throw new IllegalStateException("vehicleId is missing.");
 
@@ -243,6 +236,9 @@ class CarrierPlanXmlParserV2_1 extends MatsimXmlParser {
 				break;
 
 			//plans
+			case "plans":
+				// do nothing
+				break ;
 			case "plan":
 				String score = atts.getValue("score");
 				if (score != null) currentScore = parseTimeToDouble(score);
@@ -349,6 +345,7 @@ class CarrierPlanXmlParserV2_1 extends MatsimXmlParser {
 				carriers.getCarriers().put(currentCarrier.getId(), currentCarrier);
 				currentCarrier = null;
 			}
+			case "plans" -> {} //do nothing
 			case "plan" -> {
 				CarrierPlan currentPlan = new CarrierPlan(currentCarrier, scheduledTours);
 				currentPlan.setScore(currentScore);
