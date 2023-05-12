@@ -36,8 +36,8 @@ public final class PersonUtils {
 
     private final static String SEX_ATTRIBUTE = "sex";
     private final static String HAS_LICENSE = "hasLicense";
-    private static final String CAR_AVAIL = "carAvail";
-    private static final String BIKE_AVAIL = "bikeAvail";
+    private static final String CAR_AVAIL = "car_avail";
+    private static final String BIKE_AVAIL = "bike_avail";
     private static final String EMPLOYED = "employed";
     private static final String AGE = "age";
     private static final String TRAVEL_CARDS = "travelcards";

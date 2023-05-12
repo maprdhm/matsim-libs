@@ -95,9 +95,9 @@ public final class ChooseRandomLegMode implements PlanAlgorithm {
 			while (true) {
 				int newModeIdx = chooseModeOtherThan(currentMode);
 				newMode = this.possibleModes[newModeIdx];
-				if (!(forbidCar && TransportMode.car.equals(newMode))) {
+				if (!TransportMode.bike.equals(newMode) && !(forbidCar && TransportMode.car.equals(newMode))) {
 					break;
-				} else if (!(forbidBike && TransportMode.bike.equals(newMode))) {
+				} else if (!TransportMode.car.equals(newMode) && !(forbidBike && TransportMode.bike.equals(newMode))) {
 					break;
 				}
 				else {
