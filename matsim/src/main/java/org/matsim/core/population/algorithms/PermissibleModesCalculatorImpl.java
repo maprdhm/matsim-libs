@@ -38,10 +38,23 @@ public final class PermissibleModesCalculatorImpl implements PermissibleModesCal
 	private final boolean considerCarAvailability;
 	private final List<String> availableModesWithoutBike;
 	private List<String> availableModesWithoutBikeandCar;
+	private final List<String> availableModeswithoutDRT;
+	private final List<String> availableModeswithoutDRTandCar;
+	private final List<String> availableModeswithoutDRTandBike;
+	private final List<String> availableModeswithoutDRTandCarandBike;
 
 	@Inject
 	public PermissibleModesCalculatorImpl(Config config) {
 		this.availableModes = Arrays.asList(config.subtourModeChoice().getModes());
+
+		if (this.availableModes.contains("drt_av")) {
+			final List<String> l = new ArrayList<String>(this.availableModes);
+			while (l.remove("drt_av")) {
+			}
+			this.availableModeswithoutDRT = Collections.unmodifiableList(l);
+		} else {
+			this.availableModeswithoutDRT = this.availableModes;
+		}
 
 		if (this.availableModes.contains(TransportMode.car)) {
 			final List<String> l = new ArrayList<String>(this.availableModes);
@@ -69,6 +82,38 @@ public final class PermissibleModesCalculatorImpl implements PermissibleModesCal
 		} else {
 			this.availableModesWithoutBikeandCar = this.availableModes;
 		}
+		if (this.availableModes.contains("drt_av") || this.availableModes.contains(TransportMode.car)) {
+			final List<String> l = new ArrayList<String>(this.availableModes);
+			while (l.remove(TransportMode.car)) {
+			}
+			while (l.remove("drt_av")) {
+			}
+			this.availableModeswithoutDRTandCar = Collections.unmodifiableList(l);
+		} else {
+			this.availableModeswithoutDRTandCar = this.availableModes;
+		}
+		if (this.availableModes.contains("drt_av") || this.availableModes.contains(TransportMode.bike)) {
+			final List<String> l = new ArrayList<String>(this.availableModes);
+			while (l.remove(TransportMode.bike)) {
+			}
+			while (l.remove("drt_av")) {
+			}
+			this.availableModeswithoutDRTandBike = Collections.unmodifiableList(l);
+		} else {
+			this.availableModeswithoutDRTandBike = this.availableModes;
+		}
+		if (this.availableModes.contains("drt_av") || this.availableModes.contains(TransportMode.bike)|| this.availableModes.contains(TransportMode.car)) {
+			final List<String> l = new ArrayList<String>(this.availableModes);
+			while (l.remove(TransportMode.car)) {
+			}
+			while (l.remove(TransportMode.bike)) {
+			}
+			while (l.remove("drt_av")) {
+			}
+			this.availableModeswithoutDRTandCarandBike = Collections.unmodifiableList(l);
+		} else {
+			this.availableModeswithoutDRTandCarandBike = this.availableModes;
+		}
 		
 		this.considerCarAvailability = config.subtourModeChoice().considerCarAvailability();
 	}
@@ -91,12 +136,29 @@ public final class PermissibleModesCalculatorImpl implements PermissibleModesCal
 		
 		final boolean bikeAvail = !"never".equals( PersonUtils.getBikeAvail(person) );
 
-		if (carAvail && bikeAvail)
-			return availableModes;
-		else if (carAvail && !bikeAvail)
-			return availableModesWithoutBike;
-		else if (!carAvail && bikeAvail)
-			return availableModesWithoutCar;
-		return availableModesWithoutBikeandCar;
+		boolean drtAvail = false;
+		Object subpop = plan.getPerson().getAttributes().getAttribute("subpopulation");
+		if(subpop != null)
+			if(subpop.toString().equals("senior"))
+				drtAvail = true;
+
+		if(drtAvail) {
+			if (carAvail && bikeAvail)
+				return availableModes;
+			else if (carAvail && !bikeAvail)
+				return availableModesWithoutBike;
+			else if (!carAvail && bikeAvail)
+				return availableModesWithoutCar;
+			return availableModesWithoutBikeandCar;
+		}
+		else {
+			if (carAvail && bikeAvail)
+				return availableModeswithoutDRT;
+			else if (carAvail && !bikeAvail)
+				return availableModeswithoutDRTandBike;
+			else if (!carAvail && bikeAvail)
+				return availableModeswithoutDRTandCar;
+			return availableModeswithoutDRTandCarandBike;
+		}
 	}
 }

@@ -128,7 +128,9 @@ public class ChangeLegModeTest {
 	private void runTest(final ChangeLegMode module, final String[] possibleModes) {
 		module.prepareReplanning(null);
 
-		Plan plan = PopulationUtils.createPlan(null);
+		Person person = PopulationUtils.getFactory().createPerson(Id.create(1, Person.class));
+		PersonUtils.setCarAvail(person, "never");
+		Plan plan = PopulationUtils.createPlan(person);
 		PopulationUtils.createAndAddActivityFromCoord(plan, "home", new Coord((double) 0, (double) 0));
 		Leg leg = PopulationUtils.createAndAddLeg( plan, TransportMode.car );
 		PopulationUtils.createAndAddActivityFromCoord(plan, "work", new Coord((double) 0, (double) 0));

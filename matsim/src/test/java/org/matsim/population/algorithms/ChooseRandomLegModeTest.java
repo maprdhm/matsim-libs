@@ -201,4 +201,47 @@ public class ChooseRandomLegModeTest {
 		assertEquals("unexpected leg mode in leg 1.", TransportMode.car, ((Leg) plan.getPlanElements().get(1)).getMode());
 	}
 
+	@Test public void testDRTSeniorsOnly() {
+		ChooseRandomLegMode algo = new ChooseRandomLegMode(new String[] {TransportMode.car, TransportMode.pt, TransportMode.bike, "drt_av"}, new Random(1), false);
+		algo.setIgnoreCarAvailability(false);
+		Person person = PopulationUtils.getFactory().createPerson(Id.create(1, Person.class));
+		PersonUtils.setCarAvail(person, "always");
+		PersonUtils.setSubpopulation(person, "senior");
+		Plan plan = PopulationUtils.createPlan(person);
+		PopulationUtils.createAndAddActivityFromCoord(plan, "home", new Coord((double) 0, (double) 0));
+		PopulationUtils.createAndAddLeg( plan, TransportMode.pt );
+		PopulationUtils.createAndAddActivityFromCoord(plan, "work", new Coord((double) 0, (double) 0));
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.car, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.bike, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.pt, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.car, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", "drt_av", ((Leg) plan.getPlanElements().get(1)).getMode());
+	}
+
+	@Test public void testDRTSeniorsOnlyOther() {
+		ChooseRandomLegMode algo = new ChooseRandomLegMode(new String[] {TransportMode.car, TransportMode.pt, TransportMode.bike, "drt_av"}, new Random(1), false);
+		algo.setIgnoreCarAvailability(false);
+		Person person = PopulationUtils.getFactory().createPerson(Id.create(1, Person.class));
+		PersonUtils.setCarAvail(person, "always");
+		PersonUtils.setSubpopulation(person, "other");
+		Plan plan = PopulationUtils.createPlan(person);
+		PopulationUtils.createAndAddActivityFromCoord(plan, "home", new Coord((double) 0, (double) 0));
+		PopulationUtils.createAndAddLeg( plan, TransportMode.pt );
+		PopulationUtils.createAndAddActivityFromCoord(plan, "work", new Coord((double) 0, (double) 0));
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.car, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.bike, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.pt, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", TransportMode.car, ((Leg) plan.getPlanElements().get(1)).getMode());
+		algo.run(plan);
+		assertEquals("unexpected leg mode in leg 1.", "bike", ((Leg) plan.getPlanElements().get(1)).getMode());
+	}
 }

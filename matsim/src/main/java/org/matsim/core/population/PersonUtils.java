@@ -43,6 +43,7 @@ public final class PersonUtils {
     private static final String TRAVEL_CARDS = "travelcards";
     private static final String PERSONAL_INCOME_ATTRIBUTE_NAME = "income";
     private static final String PERSONAL_SCORING_MODE_CONSTANTS_ATTRIBUTE_NAME = "modeConstants";
+    private static final String SUBPOPULATION = "subpopulation";
     private final static Logger log = LogManager.getLogger(Person.class);
 
     @Deprecated // use methods of interface Person
@@ -156,6 +157,16 @@ public final class PersonUtils {
         if (age != null) {
             person.getCustomAttributes().put(AGE, age);
             person.getAttributes().putAttribute(AGE, age);
+        }
+    }
+
+    /**
+     * convenience method for often used demographic attribute
+     */
+    public static void setSubpopulation(Person person, final String subpopulation) {
+        if (subpopulation != null) {
+            person.getCustomAttributes().put(SUBPOPULATION, subpopulation);
+            person.getAttributes().putAttribute(SUBPOPULATION, subpopulation);
         }
     }
 

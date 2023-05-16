@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.population.Leg;
 import org.matsim.api.core.v01.population.Plan;
@@ -71,6 +72,12 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 
 	@Override
 	public void run(final Plan plan) {
+		boolean forbidDRT = false;
+		Object subpop = plan.getPerson().getAttributes().getAttribute("subpopulation");
+		if(subpop != null)
+			if(!subpop.toString().equals("senior"))
+				forbidDRT = true;
+
 		boolean forbidCar = false;
 		boolean forbidBike = false;
 		if (!this.ignoreCarAvailability) {
@@ -104,11 +111,11 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 			return;
 		}
 		int rndIdx = this.rng.nextInt(cnt);
-		setRandomLegMode(legs.get(rndIdx), forbidCar, forbidBike);
+		setRandomLegMode(legs.get(rndIdx), forbidCar, forbidBike, forbidDRT);
 	}
 
-	private void setRandomLegMode(final Leg leg, final boolean forbidCar, final boolean forbidBike) {
-		String newMode = chooseModeOtherThan(leg.getMode(), forbidCar, forbidBike);
+	private void setRandomLegMode(final Leg leg, final boolean forbidCar, final boolean forbidBike, final boolean forbidDRT) {
+		String newMode = chooseModeOtherThan(leg.getMode(), forbidCar, forbidBike, forbidDRT);
 		leg.setMode(newMode);
 		TripStructureUtils.setRoutingMode(leg, newMode);
 		Route route = leg.getRoute() ;
@@ -117,7 +124,7 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 		}
 	}
 
-	private String chooseModeOtherThan(final String currentMode, final boolean forbidCar, final boolean forbidBike) {
+	private String chooseModeOtherThan(final String currentMode, final boolean forbidCar, final boolean forbidBike, final boolean forbidDRT) {
 		String newMode;
 		while (true) {
 			int newModeIdx = this.rng.nextInt(this.possibleModes.length - 1);
@@ -132,6 +139,8 @@ public final class ChooseRandomSingleLegMode implements PlanAlgorithm {
 			}
 			
 			newMode = this.possibleModes[newModeIdx];
+			if(newMode.equals("drt_av") && forbidDRT)
+				continue;
 			
 			if (!TransportMode.bike.equals(newMode) && !(forbidCar && TransportMode.car.equals(newMode))) {
 				break;

@@ -71,6 +71,12 @@ public final class ChooseRandomLegMode implements PlanAlgorithm {
 	}
 
 	private void changeToRandomLegMode(final List<PlanElement> tour, final Plan plan) {
+		boolean forbidDRT = false;
+		Object subpop = plan.getPerson().getAttributes().getAttribute("subpopulation");
+		if(subpop != null)
+			if(!subpop.toString().equals("senior"))
+				forbidDRT = true;
+
 		if (tour.size() > 1) {
 			boolean forbidCar = false;
 			boolean forbidBike = false;
@@ -95,6 +101,9 @@ public final class ChooseRandomLegMode implements PlanAlgorithm {
 			while (true) {
 				int newModeIdx = chooseModeOtherThan(currentMode);
 				newMode = this.possibleModes[newModeIdx];
+				if(newMode.equals("drt_av") && forbidDRT)
+					continue;
+
 				if (!TransportMode.bike.equals(newMode) && !(forbidCar && TransportMode.car.equals(newMode))) {
 					break;
 				} else if (!TransportMode.car.equals(newMode) && !(forbidBike && TransportMode.bike.equals(newMode))) {
